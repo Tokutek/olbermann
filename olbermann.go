@@ -14,23 +14,20 @@ import (
 // user-defined
 type ValueSet interface{}
 
-// user-defined
-type Accumulator interface{}
-
 // semi-deep copy (just for structs)
-func clone(old Accumulator) Accumulator {
+func clone(old ValueSet) ValueSet {
 	val := reflect.Indirect(reflect.ValueOf(old))
 	newVal := reflect.New(val.Type())
 	for i := 0; i < val.NumField(); i++ {
 		reflect.Indirect(newVal).Field(i).Set(val.Field(i))
 	}
-	return newVal.Interface().(Accumulator)
+	return newVal.Interface().(ValueSet)
 }
 
 type Printer interface {
-	Header(acc Accumulator) Stringser
+	Header(acc ValueSet) Stringser
 	PrintHeader(s Stringser)
-	Print(tDelta time.Duration, tTotal time.Duration, last Accumulator, cur Accumulator)
+	Print(tDelta time.Duration, tTotal time.Duration, last ValueSet, cur ValueSet)
 }
 
 type LogPrinter struct {
@@ -134,7 +131,7 @@ func (h *header) Strings() (fst string, snd string) {
 	return
 }
 
-func (lp *LogPrinter) Header(acc Accumulator) Stringser {
+func (lp *LogPrinter) Header(acc ValueSet) Stringser {
 	st := reflect.TypeOf(acc)
 	if st.Kind() == reflect.Ptr {
 		st = st.Elem()
@@ -174,7 +171,7 @@ func (lp *LogPrinter) PrintHeader(s Stringser) {
 	lp.logger.Println(snd)
 }
 
-func (lp *LogPrinter) Print(tDelta time.Duration, tTotal time.Duration, last Accumulator, cur Accumulator) {
+func (lp *LogPrinter) Print(tDelta time.Duration, tTotal time.Duration, last ValueSet, cur ValueSet) {
 	st := reflect.TypeOf(cur)
 	lastVal := reflect.ValueOf(last)
 	curVal := reflect.ValueOf(cur)
@@ -231,7 +228,7 @@ func NewNoHeaderReporter(p time.Duration) *Reporter {
 }
 
 // Usage: olbermann.Feed(acc, valueChan)
-func Feed(acc Accumulator, c <-chan ValueSet) (err error) {
+func Feed(acc ValueSet, c <-chan ValueSet) (err error) {
 	st := reflect.TypeOf(acc)
 	val := reflect.ValueOf(acc)
 	for st.Kind() == reflect.Ptr {
@@ -274,7 +271,7 @@ func Feed(acc Accumulator, c <-chan ValueSet) (err error) {
 // Usage: killer := olbermann.Start(p, r, acc)
 //        ...
 //        killer <- true
-func Start(p Printer, r Reporter, acc Accumulator) (kill chan bool) {
+func Start(p Printer, r Reporter, acc ValueSet) (kill chan bool) {
 	kill = make(chan bool)
 	go func() {
 		ticker := time.Tick(r.period)
@@ -305,6 +302,6 @@ func Start(p Printer, r Reporter, acc Accumulator) (kill chan bool) {
 	return
 }
 
-func BasicStart(name string, acc Accumulator) chan bool {
+func BasicStart(name string, acc ValueSet) chan bool {
 	return Start(&LogPrinter{log.New(os.Stdout, name, log.LstdFlags)}, HumanReporter, acc)
 }
