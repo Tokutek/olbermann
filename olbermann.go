@@ -89,7 +89,7 @@ func (h *header) Strings() (fst string, snd string) {
 				bufs[0].WriteString("- -")
 			}
 			j := 0
-			for ; j < (colSizes[i]-len(elt.name))/2; j++ {
+			for ; j < (colSizes[i]-len(elt.name)-2)/2; j++ {
 				bufs[0].WriteString("-")
 			}
 			if i == 0 {

@@ -33,7 +33,7 @@ func Example() {
 	close(c)
 	killer <- true
 	// Output:
-	// example: ------------ as ---------- ------ bs ---
+	// example: ----------- as ----------- ----- bs ----
 	// example:         iter        total |        total
 	// example:         2.00            3 |            3
 	// example:         2.00            5 |            5
