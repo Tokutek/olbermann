@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// A styler that produces output similar to dstat.
+// DstatStyler is a Styler that produces output similar to dstat.
 type DstatStyler struct {
 	Period              time.Duration // How often to print
 	LinesBetweenHeaders int           // After how many lines to print header info

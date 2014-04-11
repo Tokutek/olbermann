@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Represents a central point to collect a metric stream.
+// A Reporter represents a central point to collect a metric stream.
 //
 // Must create with C a channel of structs or pointers to structs defined with tags explaining the metrics to track and how to report them.
 //
@@ -37,9 +37,9 @@ type Reporter struct {
 	lock sync.RWMutex
 }
 
-/*
-Consumes input to the reporter's channel.  Should be done on a goroutine.
-*/
+// Feed is a long-running function that consumes input to the reporter's channel until the channel is closed.
+//
+// Should be done on a goroutine.
 func (r *Reporter) Feed() {
 	for val := range r.C {
 		r.lock.RLock()
@@ -50,11 +50,11 @@ func (r *Reporter) Feed() {
 	}
 }
 
-// Interface describing how, when, and where to display results.
+// A Styler describes how, when, and where to display results.
 //
 // Current implementations:
 //
-// 	- DstatStyler
+// * DstatStyler
 type Styler interface {
 	period() time.Duration
 	linesBetweenHeaders() int
@@ -62,11 +62,9 @@ type Styler interface {
 	printValues(mst *metricSetType, msv *metricSetValue)
 }
 
-// Starts a goroutine printing the Reporter's metrics according to the provided Styler.
+// Start creates a goroutine printing the Reporter's metrics according to the provided Styler, and returns a channel that can be used to kill the goroutine.
 //
 // Needs a sample object to initialize some state, the zero value for the metric will do.
-//
-// Returns a channel used to kill the goroutine.
 //
 // Usage:
 // 	dstatKiller := r.Start(ReportableMetric{}, &BasicDstatStyler)
