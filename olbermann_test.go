@@ -3,13 +3,12 @@ package olbermann
 import (
 	"log"
 	"os"
-	//"testing"
 	"time"
 )
 
 type exampleValueSet struct {
-	A int `type:"counter" report:"iter,total" name:"as"`
-	B int `type:"counter" report:"total" name:"bs"`
+	A int `type:"counter" report:"iter,total"`
+	B int `type:"counter" report:"total"`
 	//Tps int `type:"counter" report:"iter,cum" name:"tps"`
 }
 
@@ -18,13 +17,13 @@ type exampleValueSet struct {
 // times, and we don't use the iter or cum report types on large values in
 // this example.
 func Example() {
-	var acc exampleValueSet
-	c := make(chan ValueSet, 10)
-	if err := Feed(&acc, c); err != nil {
-		log.Fatal(err)
+	c := make(chan interface{}, 10)
+	r := &Reporter{C: c}
+	go r.Feed()
+	killer, err := r.Start(exampleValueSet{}, &DstatStyler{Period: 1, LinesBetweenHeaders: 0, Logger: log.New(os.Stdout, "example: ", 0)})
+	if err != nil {
+		return
 	}
-	//killer := BasicStart("example ", &acc)
-	killer := Start(&LogPrinter{log.New(os.Stdout, "example: ", 0)}, HumanReporter, &acc)
 	for i := 0; i < 10; i++ {
 		//c <- &exampleValueSet{A: 1, B: 1, Tps: 198273}
 		c <- &exampleValueSet{A: 1, B: 1}
@@ -33,10 +32,10 @@ func Example() {
 	close(c)
 	killer <- true
 	// Output:
-	// example: ----------- as ----------- ----- bs ----
+	// example: ----------- a ------------ ----- b -----
 	// example:         iter        total |        total
-	// example:         2.00            3 |            3
-	// example:         2.00            5 |            5
-	// example:         3.00            8 |            8
-	// example:         2.00           10 |           10
+	// example:         2.00            2 |            2
+	// example:         1.00            4 |            4
+	// example:         1.00            7 |            7
+	// example:         0.50            9 |            9
 }
