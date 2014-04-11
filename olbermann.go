@@ -25,7 +25,7 @@ import (
 // 		metricChannel := make(chan *ReportableMetric, 100)
 // 		r := olbermann.Reporter{C: metricChannel}
 // 		go r.Feed()
-// 		dstatKiller := r.Start(&olbermann.BasicDstatStyler)
+// 		dstatKiller := r.Start(ReportableMetric{}, &olbermann.BasicDstatStyler)
 // 		for i := 0; i < 100; i++ {
 // 			metricChannel <- &ReportableMetric{1000, 20, 0.5}
 // 		}
@@ -63,6 +63,8 @@ type Styler interface {
 }
 
 // Starts a goroutine printing the Reporter's metrics according to the provided Styler.
+//
+// Needs a sample object to initialize some state, the zero value for the metric will do.
 //
 // Returns a channel used to kill the goroutine.
 //
