@@ -10,13 +10,16 @@ import (
 	"time"
 )
 
-// Produces output similar to dstat.
+// A styler that produces output similar to dstat.
 type DstatStyler struct {
 	Period              time.Duration // How often to print
 	LinesBetweenHeaders int           // After how many lines to print header info
 	Logger              *log.Logger   // A logger to print to
 }
 
+// A Styler that produces good default output similar to dstat, to
+// standard out, with timestamps, once per second, with headers every 24
+// lines.
 var BasicDstatStyler = DstatStyler{Period: time.Second, LinesBetweenHeaders: 24, Logger: log.New(os.Stdout, "", log.LstdFlags)}
 
 func (s *DstatStyler) period() time.Duration {
