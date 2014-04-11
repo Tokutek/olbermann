@@ -7,13 +7,9 @@ import (
 )
 
 // Represents a central point to collect a metric stream.
-//
 // Must create with C a channel of structs or pointers to structs defined with tags explaining the metrics to track and how to report them.
-//
 // Can Start multiple reporting goroutines off the same Reporter.
-//
 // Must invoke Feed() on a goroutine to pull metrics off the stream.
-//
 // Usage:
 // 	type ReportableMetric struct {
 // 		Ips int64   `type:"counter" report:"iter,cum"`
