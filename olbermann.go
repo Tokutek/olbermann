@@ -1,3 +1,17 @@
+// Olbermann is a reporter.
+// Give it a metrics struct with tags, and it will report those metrics for you.
+//
+// Define a struct with tags "type" indicating what kind of data is there, and "report" requesting that a set of quantities be reported.
+//
+// Example:
+//
+// 	type ReportableMetric struct {
+// 		Transactions   int64   `type:"counter" report:"iter,cum"`
+// 		Faults         int64   `type:"counter" report:"cum,total"`
+// 		ProcessingTime float64 `type:"counter" report:"total"`
+// 	}
+//
+// Then just send ReportableMetric objects or pointers down a channel, olbermann will take care of the rest.
 package olbermann
 
 import (
