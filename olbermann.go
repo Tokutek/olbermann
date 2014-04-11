@@ -7,9 +7,13 @@ import (
 )
 
 // Represents a central point to collect a metric stream.
+//
 // Must create with C a channel of structs or pointers to structs defined with tags explaining the metrics to track and how to report them.
-// Can Start multiple reporting goroutines off the same Reporter.
+//
+// Can Start() multiple reporting goroutines off the same Reporter.
+//
 // Must invoke Feed() on a goroutine to pull metrics off the stream.
+//
 // Usage:
 // 	type ReportableMetric struct {
 // 		Ips int64   `type:"counter" report:"iter,cum"`
@@ -33,6 +37,9 @@ type Reporter struct {
 	lock sync.RWMutex
 }
 
+/*
+Consumes input to the reporter's channel.  Should be done on a goroutine.
+*/
 func (r *Reporter) Feed() {
 	for val := range r.C {
 		r.lock.RLock()
@@ -43,6 +50,11 @@ func (r *Reporter) Feed() {
 	}
 }
 
+// Interface describing how, when, and where to display results.
+//
+// Current implementations:
+//
+// 	- DstatStyler
 type Styler interface {
 	period() time.Duration
 	linesBetweenHeaders() int
@@ -51,7 +63,9 @@ type Styler interface {
 }
 
 // Starts a goroutine printing the Reporter's metrics according to the provided Styler.
+//
 // Returns a channel used to kill the goroutine.
+//
 // Usage:
 // 	dstatKiller := r.Start(&BasicDstatStyler)
 // 	...
