@@ -69,7 +69,7 @@ type Styler interface {
 // Returns a channel used to kill the goroutine.
 //
 // Usage:
-// 	dstatKiller := r.Start(&BasicDstatStyler)
+// 	dstatKiller := r.Start(ReportableMetric{}, &BasicDstatStyler)
 // 	...
 // 	dstatKiller <- true
 func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<- bool, err error) {
