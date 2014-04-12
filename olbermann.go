@@ -58,7 +58,9 @@ func (r *Reporter) Feed() {
 	for val := range r.C {
 		r.lock.RLock()
 		for i := range r.msts {
-			r.msts[i].update(val)
+			if r.msts[i] != nil {
+				r.msts[i].update(val)
+			}
 		}
 		r.lock.RUnlock()
 	}
@@ -101,9 +103,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<
 		r.lock.Unlock()
 		defer func() {
 			r.lock.Lock()
-			copy(r.msts[idx:], r.msts[idx+1:])
-			r.msts[len(r.msts)-1] = nil
-			r.msts = r.msts[:len(r.msts)-1]
+			r.msts[idx] = nil
 			r.lock.Unlock()
 		}()
 
