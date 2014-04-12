@@ -12,6 +12,14 @@ type exampleValueSet struct {
 	//Tps int `type:"counter" report:"iter,cum" name:"tps"`
 }
 
+func gen(c chan<- interface{}) {
+	for i := 0; i < 10; i++ {
+		//c <- &exampleValueSet{A: 1, B: 1, Tps: 198273}
+		c <- &exampleValueSet{A: 1, B: 1}
+		time.Sleep(400 * time.Millisecond)
+	}
+}
+
 // This is not a perfect example, because we can't rely on clocks to
 // generate the right output.  So we use a log.Logger that doesn't print
 // times, and we don't use the iter or cum report types on large values in
@@ -24,11 +32,7 @@ func Example() {
 	if err != nil {
 		return
 	}
-	for i := 0; i < 10; i++ {
-		//c <- &exampleValueSet{A: 1, B: 1, Tps: 198273}
-		c <- &exampleValueSet{A: 1, B: 1}
-		time.Sleep(400 * time.Millisecond)
-	}
+	gen(c)
 	close(c)
 	killer <- true
 	// Output:
