@@ -28,7 +28,7 @@ func Example() {
 	c := make(chan interface{}, 10)
 	r := &Reporter{C: c}
 	go r.Feed()
-	killer, err := r.Start(exampleValueSet{}, &DstatStyler{Period: 1, LinesBetweenHeaders: 0, Logger: log.New(os.Stdout, "example: ", 0)})
+	killer, err := r.Start(exampleValueSet{}, &DstatStyler{Period: time.Second, LinesBetweenHeaders: 0, Logger: log.New(os.Stdout, "example: ", 0)})
 	if err != nil {
 		return
 	}
