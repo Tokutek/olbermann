@@ -62,7 +62,83 @@ func BenchmarkUpdateMetricsStruct(b *testing.B) {
 	}
 }
 
-func BenchmarkIncrements(b *testing.B) {
+// You would think it would be possible to make a generic
+// benchmarkUpdateMetricsAgg function that accepts a parameter, but the
+// cost of doing i%n == (n-1) is actually pretty significant.  It is much
+// better (a factor of 4 or 5 in some cases) to have constants.
+func BenchmarkUpdateMetricsAgg10(b *testing.B) {
+	var m SampleMetric
+	mst, err := newMetricSetTypeOf(m)
+	if err != nil {
+		b.Error(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.IntVal += 5
+		m.FloatVal += float64(i) * 0.1
+		if i%10 == 9 {
+			mst.update(m)
+			m = SampleMetric{}
+		}
+	}
+	mst.update(m)
+}
+
+func BenchmarkUpdateMetricsAgg50(b *testing.B) {
+	var m SampleMetric
+	mst, err := newMetricSetTypeOf(m)
+	if err != nil {
+		b.Error(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.IntVal += 5
+		m.FloatVal += float64(i) * 0.1
+		if i%50 == 49 {
+			mst.update(m)
+			m = SampleMetric{}
+		}
+	}
+	mst.update(m)
+}
+
+func BenchmarkUpdateMetricsAgg100(b *testing.B) {
+	var m SampleMetric
+	mst, err := newMetricSetTypeOf(m)
+	if err != nil {
+		b.Error(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.IntVal += 5
+		m.FloatVal += float64(i) * 0.1
+		if i%100 == 99 {
+			mst.update(m)
+			m = SampleMetric{}
+		}
+	}
+	mst.update(m)
+}
+
+func BenchmarkUpdateMetricsAgg1000(b *testing.B) {
+	var m SampleMetric
+	mst, err := newMetricSetTypeOf(m)
+	if err != nil {
+		b.Error(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.IntVal += 5
+		m.FloatVal += float64(i) * 0.1
+		if i%1000 == 999 {
+			mst.update(m)
+			m = SampleMetric{}
+		}
+	}
+	mst.update(m)
+}
+
+func BenchmarkPlainIncrements(b *testing.B) {
 	var metric SampleMetric
 	for i := 0; i < b.N; i++ {
 		metric.IntVal += 5
