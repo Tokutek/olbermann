@@ -76,7 +76,7 @@ func (s *DstatStyler) printValues(mst *metricSetType, msv *metricSetValue) {
 			if j > 0 {
 				buf.WriteString(" ")
 			}
-			buf.WriteString(rt.string(rv.value))
+			fmt.Fprintf(&buf, "%12s", rt.string(rv.value))
 		}
 	}
 	s.Logger.Print(buf.String())

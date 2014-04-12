@@ -40,7 +40,7 @@ func (t *iterCounterReportType) get(iterDuration time.Duration, cumDuration time
 }
 
 func (t *iterCounterReportType) string(val float64) string {
-	return fmt.Sprintf("%12.2f", val)
+	return fmt.Sprintf("%.2f", val)
 }
 
 type cumulativeCounterReportType struct {
@@ -61,7 +61,7 @@ func (t *cumulativeCounterReportType) get(iterDuration time.Duration, cumDuratio
 }
 
 func (t *cumulativeCounterReportType) string(val float64) string {
-	return fmt.Sprintf("%12.2f", val)
+	return fmt.Sprintf("%.2f", val)
 }
 
 type totalCounterReportType struct {
@@ -82,7 +82,7 @@ func (t *totalCounterReportType) get(iterDuration time.Duration, cumDuration tim
 }
 
 func (t *totalCounterReportType) string(val float64) string {
-	return fmt.Sprintf("%12d", int64(val))
+	return fmt.Sprintf("%d", int64(val))
 }
 
 type ewmaCounterReportType struct {
@@ -107,7 +107,7 @@ func (t *ewmaCounterReportType) get(iterDuration time.Duration, cumDuration time
 }
 
 func (t *ewmaCounterReportType) string(val float64) string {
-	return fmt.Sprintf("%12.2f", val)
+	return fmt.Sprintf("%.2f", val)
 }
 
 func newCounterMetric(field reflect.StructField) (metric metricType, err error) {
