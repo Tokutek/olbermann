@@ -8,7 +8,7 @@ import (
 
 type exampleValueSet struct {
 	A int `type:"counter" report:"iter,total"`
-	B int `type:"counter" report:"total"`
+	B int `type:"counter" report:"ewma,cum,total"`
 	//Tps int `type:"counter" report:"iter,cum" name:"tps"`
 }
 
@@ -32,10 +32,10 @@ func Example() {
 	close(c)
 	killer <- true
 	// Output:
-	// example: ----------- a ------------ ----- b -----
-	// example:         iter        total |        total
-	// example:         2.00            2 |            2
-	// example:         1.00            4 |            4
-	// example:         1.00            7 |            7
-	// example:         0.50            9 |            9
+	// example: ----------- a ------------ ------------------ b ------------------
+	// example:         iter        total |         ewma          cum        total
+	// example:         2.00            2 |         2.00         2.00            2
+	// example:         1.00            4 |         1.94         2.00            4
+	// example:         1.00            7 |         1.87         2.33            7
+	// example:         0.50            9 |         1.79         2.25            9
 }

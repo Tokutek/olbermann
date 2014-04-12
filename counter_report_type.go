@@ -3,6 +3,7 @@ package olbermann
 import (
 	"fmt"
 	"errors"
+	"github.com/VividCortex/ewma"
 	"reflect"
 	"strings"
 	"time"
@@ -84,6 +85,31 @@ func (t *totalCounterReportType) string(val float64) string {
 	return fmt.Sprintf("%12d", int64(val))
 }
 
+type ewmaCounterReportType struct {
+	value             float64
+	lastReportedValue float64
+	avg ewma.MovingAverage
+}
+
+func (t *ewmaCounterReportType) name() string {
+	return "ewma"
+}
+
+func (t *ewmaCounterReportType) add(fval reflect.Value) {
+	t.value += toFloat(fval)
+}
+
+func (t *ewmaCounterReportType) get(iterDuration time.Duration, cumDuration time.Duration) (res float64) {
+	t.avg.Add((t.value - t.lastReportedValue) / iterDuration.Seconds())
+	res = t.avg.Value()
+	t.lastReportedValue = t.value
+	return
+}
+
+func (t *ewmaCounterReportType) string(val float64) string {
+	return fmt.Sprintf("%12.2f", val)
+}
+
 func newCounterMetric(field reflect.StructField) (metric metricType, err error) {
 	reportNames := strings.Split(field.Tag.Get("report"), ",")
 	if len(reportNames) < 1 {
@@ -97,6 +123,8 @@ func newCounterMetric(field reflect.StructField) (metric metricType, err error) 
 			reports[j] = new(iterCounterReportType)
 		case "cum":
 			reports[j] = new(cumulativeCounterReportType)
+		case "ewma":
+			reports[j] = &ewmaCounterReportType{avg: ewma.NewMovingAverage()}
 		case "total":
 			reports[j] = new(totalCounterReportType)
 		}
