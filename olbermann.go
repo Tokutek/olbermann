@@ -73,7 +73,7 @@ type Styler interface {
 	period() time.Duration
 	linesBetweenHeaders() int
 	printHeader(mst *metricSetType)
-	printValues(mst *metricSetType, msv *metricSetValue)
+	printValues(curTime time.Time, mst *metricSetType, msv *metricSetValue)
 }
 
 // Start creates a goroutine printing the Reporter's metrics according to the provided Styler, and returns a channel that can be used to kill the goroutine.
@@ -128,7 +128,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<
 					linesSinceHeader = 0
 					styler.printHeader(mst)
 				}
-				styler.printValues(mst, msv)
+				styler.printValues(curTime, mst, msv)
 				linesSinceHeader++
 			}
 		}

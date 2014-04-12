@@ -62,7 +62,7 @@ func (s *DstatStyler) printHeader(mst *metricSetType) {
 	s.Logger.Print(buf.String())
 }
 
-func (s *DstatStyler) printValues(mst *metricSetType, msv *metricSetValue) {
+func (s *DstatStyler) printValues(curTime time.Time, mst *metricSetType, msv *metricSetValue) {
 	var buf bytes.Buffer
 	for i := range mst.metrics {
 		mt := mst.metrics[i]
