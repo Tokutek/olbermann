@@ -1,6 +1,7 @@
 package olbermann
 
 import (
+	"bufio"
 	"log"
 	"os"
 	"time"
@@ -42,4 +43,24 @@ func Example() {
 	// example:         1.00            4 |         1.94         2.00            4
 	// example:         1.00            7 |         1.87         2.33            7
 	// example:         0.50            9 |         1.79         2.25            9
+}
+
+// This output is too high precision to be an accurate test, but this is about what it would produce:
+// Output:
+// time,"A iter","A total","B ewma","B cum","B total"
+// "2014-04-12 00:41:06.921153316 -0400 EDT",1.999723,2.000000,1.999723,1.999723,2.000000
+// "2014-04-12 00:41:07.921158351 -0400 EDT",0.999928,4.000000,1.935220,1.999856,4.000000
+// "2014-04-12 00:41:08.921147586 -0400 EDT",0.999956,7.000000,1.874880,2.333230,7.000000
+// "2014-04-12 00:41:09.921124252 -0400 EDT",0.499986,9.000000,1.786177,2.249938,9.000000
+func ExampleCsv() {
+	c := make(chan interface{}, 10)
+	r := &Reporter{C: c}
+	go r.Feed()
+	csvKiller, err := r.Start(exampleValueSet{}, &CsvStyler{Period: time.Duration(10)*time.Millisecond, Writer: bufio.NewWriter(os.Stdout)})
+	if err != nil {
+		return
+	}
+	gen(c)
+	close(c)
+	csvKiller <- true
 }
