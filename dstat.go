@@ -76,12 +76,7 @@ func (s *DstatStyler) printValues(mst *metricSetType, msv *metricSetValue) {
 			if j > 0 {
 				buf.WriteString(" ")
 			}
-			switch rt.(type) {
-			case *iterCounterReportType, *cumulativeCounterReportType:
-				fmt.Fprintf(&buf, "%12.2f", rv.value)
-			case *totalCounterReportType:
-				fmt.Fprintf(&buf, "%12d", int64(rv.value))
-			}
+			buf.WriteString(rt.string(rv.value))
 		}
 	}
 	s.Logger.Print(buf.String())

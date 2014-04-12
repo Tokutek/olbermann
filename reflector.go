@@ -10,6 +10,7 @@ type reportType interface {
 	name() string
 	add(fval reflect.Value)
 	get(iterDuration time.Duration, cumDuration time.Duration) float64
+	string(val float64) string
 }
 
 type metricType struct {

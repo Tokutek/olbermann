@@ -1,6 +1,7 @@
 package olbermann
 
 import (
+	"fmt"
 	"errors"
 	"reflect"
 	"strings"
@@ -37,6 +38,10 @@ func (t *iterCounterReportType) get(iterDuration time.Duration, cumDuration time
 	return
 }
 
+func (t *iterCounterReportType) string(val float64) string {
+	return fmt.Sprintf("%12.2f", val)
+}
+
 type cumulativeCounterReportType struct {
 	value float64
 }
@@ -54,6 +59,10 @@ func (t *cumulativeCounterReportType) get(iterDuration time.Duration, cumDuratio
 	return
 }
 
+func (t *cumulativeCounterReportType) string(val float64) string {
+	return fmt.Sprintf("%12.2f", val)
+}
+
 type totalCounterReportType struct {
 	value float64
 }
@@ -69,6 +78,10 @@ func (t *totalCounterReportType) add(fval reflect.Value) {
 func (t *totalCounterReportType) get(iterDuration time.Duration, cumDuration time.Duration) (res float64) {
 	res = t.value
 	return
+}
+
+func (t *totalCounterReportType) string(val float64) string {
+	return fmt.Sprintf("%12d", int64(val))
 }
 
 func newCounterMetric(field reflect.StructField) (metric metricType, err error) {
