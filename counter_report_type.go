@@ -156,6 +156,12 @@ func newCounterMetric(field reflect.StructField) (metric metricType, err error) 
 			reports[j] = new(cumulativeCounterReportType)
 		case "ewma1":
 			reports[j] = newEwmaCounterReportType(60)
+		case "ewma5":
+			reports[j] = newEwmaCounterReportType(300)
+		case "ewma15":
+			reports[j] = newEwmaCounterReportType(900)
+		case "ewma60":
+			reports[j] = newEwmaCounterReportType(3600)
 		case "total":
 			reports[j] = new(totalCounterReportType)
 		}
