@@ -73,7 +73,8 @@ func (r *Reporter) Feed() {
 //
 // Current implementations:
 //
-// * DstatStyler
+//  - CsvStyler
+//  - DstatStyler
 type Styler interface {
 	period() time.Duration
 	linesBetweenHeaders() int
