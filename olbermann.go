@@ -103,6 +103,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<
 		r.lock.Unlock()
 		defer func() {
 			r.lock.Lock()
+			r.msts[idx].close()
 			r.msts[idx] = nil
 			r.lock.Unlock()
 		}()

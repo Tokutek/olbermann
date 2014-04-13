@@ -43,6 +43,8 @@ func (t *iterCounterReportType) string(val float64) string {
 	return fmt.Sprintf("%.2f", val)
 }
 
+func (t *iterCounterReportType) close() {}
+
 type cumulativeCounterReportType struct {
 	value float64
 }
@@ -63,6 +65,8 @@ func (t *cumulativeCounterReportType) get(iterDuration time.Duration, cumDuratio
 func (t *cumulativeCounterReportType) string(val float64) string {
 	return fmt.Sprintf("%.2f", val)
 }
+
+func (t *cumulativeCounterReportType) close() {}
 
 type totalCounterReportType struct {
 	value float64
@@ -85,14 +89,39 @@ func (t *totalCounterReportType) string(val float64) string {
 	return fmt.Sprintf("%d", int64(val))
 }
 
+func (t *totalCounterReportType) close() {}
+
 type ewmaCounterReportType struct {
+	nameString        string
 	value             float64
-	lastReportedValue float64
-	avg ewma.MovingAverage
+	avg               ewma.MovingAverage
+	killer            chan<- bool
+}
+
+func newEwmaCounterReportType(decaySamples int) (res *ewmaCounterReportType) {
+	kill := make(chan bool)
+	res = &ewmaCounterReportType{nameString: fmt.Sprintf("ewma%d", decaySamples/60), avg: ewma.NewMovingAverage(float64(decaySamples)), killer: kill}
+	go func() {
+		ticks := time.Tick(time.Second)
+		lastTick := time.Now()
+		lastReportedValue := res.value
+		for {
+			select {
+			case <-kill:
+				close(kill)
+				return
+			case tick := <-ticks:
+				res.avg.Add((res.value - lastReportedValue) / tick.Sub(lastTick).Seconds())
+				lastReportedValue = res.value
+				lastTick = tick
+			}
+		}
+	}()
+	return
 }
 
 func (t *ewmaCounterReportType) name() string {
-	return "ewma"
+	return t.nameString
 }
 
 func (t *ewmaCounterReportType) add(fval reflect.Value) {
@@ -100,14 +129,16 @@ func (t *ewmaCounterReportType) add(fval reflect.Value) {
 }
 
 func (t *ewmaCounterReportType) get(iterDuration time.Duration, cumDuration time.Duration) (res float64) {
-	t.avg.Add((t.value - t.lastReportedValue) / iterDuration.Seconds())
 	res = t.avg.Value()
-	t.lastReportedValue = t.value
 	return
 }
 
 func (t *ewmaCounterReportType) string(val float64) string {
 	return fmt.Sprintf("%.2f", val)
+}
+
+func (t *ewmaCounterReportType) close() {
+	t.killer <- true
 }
 
 func newCounterMetric(field reflect.StructField) (metric metricType, err error) {
@@ -123,8 +154,8 @@ func newCounterMetric(field reflect.StructField) (metric metricType, err error) 
 			reports[j] = new(iterCounterReportType)
 		case "cum":
 			reports[j] = new(cumulativeCounterReportType)
-		case "ewma":
-			reports[j] = &ewmaCounterReportType{avg: ewma.NewMovingAverage()}
+		case "ewma1":
+			reports[j] = newEwmaCounterReportType(60)
 		case "total":
 			reports[j] = new(totalCounterReportType)
 		}

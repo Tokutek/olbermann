@@ -11,6 +11,7 @@ type reportType interface {
 	add(fval reflect.Value)
 	get(iterDuration time.Duration, cumDuration time.Duration) float64
 	string(val float64) string
+	close()
 }
 
 type metricType struct {
@@ -67,6 +68,15 @@ func (mst *metricSetType) update(val interface{}) (err error) {
 		}
 	}
 	return
+}
+
+func (mst *metricSetType) close() {
+	for i := range mst.metrics {
+		rt := mst.metrics[i]
+		for j := range rt.reports {
+			rt.reports[j].close()
+		}
+	}
 }
 
 type reportValue struct {
