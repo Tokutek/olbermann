@@ -1,4 +1,4 @@
-// Olbermann is a reporter.
+// Package olbermann is a reporter.
 // Give it a metrics struct with tags, and it will report those metrics for you.
 //
 // Define a struct with tags "type" indicating what kind of data is there, and "report" requesting that a set of quantities be reported.
