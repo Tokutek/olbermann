@@ -36,10 +36,13 @@ import (
 // 	}
 //
 // 	{
-// 		metricChannel := make(chan *ReportableMetric, 100)
+// 		metricChannel := make(chan interface{}, 100)
 // 		r := olbermann.Reporter{C: metricChannel}
 // 		go r.Feed()
-// 		dstatKiller := r.Start(ReportableMetric{}, &olbermann.BasicDstatStyler)
+// 		dstatKiller, err := r.Start(ReportableMetric{}, &olbermann.BasicDstatStyler)
+// 		if err != nil {
+// 			return
+// 		}
 // 		for i := 0; i < 100; i++ {
 // 			metricChannel <- &ReportableMetric{1000, 20, 0.5}
 // 		}
@@ -83,7 +86,10 @@ type Styler interface {
 // Needs a sample object to initialize some state, the zero value for the metric will do.
 //
 // Usage:
-// 	dstatKiller := r.Start(ReportableMetric{}, &BasicDstatStyler)
+// 	dstatKiller, err := r.Start(ReportableMetric{}, &BasicDstatStyler)
+// 	if err != nil {
+// 		return
+// 	}
 // 	...
 // 	dstatKiller <- true
 func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<- bool, err error) {
