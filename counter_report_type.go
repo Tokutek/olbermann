@@ -1,8 +1,8 @@
 package olbermann
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"github.com/VividCortex/ewma"
 	"reflect"
 	"strings"
