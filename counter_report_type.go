@@ -18,17 +18,6 @@ func (t *iterCounterReportType) name() string {
 	return "iter"
 }
 
-func toFloat(fval reflect.Value) float64 {
-	switch fval.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return float64(fval.Int())
-	case reflect.Float32, reflect.Float64:
-		return fval.Float()
-	default:
-		panic("wrong kind for float " + fval.Kind().String())
-	}
-}
-
 func (t *iterCounterReportType) add(fval reflect.Value) {
 	t.value += toFloat(fval)
 }
