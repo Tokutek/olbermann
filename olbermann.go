@@ -8,7 +8,7 @@
 // 	type ReportableMetric struct {
 // 		Transactions   int64   `type:"counter" report:"iter,cum"`
 // 		Faults         int64   `type:"counter" report:"cum,total"`
-// 		ProcessingTime float64 `type:"counter" report:"total"`
+// 		ProcessingTime float64 `type:"latency" report:"w50,w90,c90,c99,c99.9"`
 // 	}
 //
 // Then just send ReportableMetric objects or pointers down a channel, olbermann will take care of the rest.
