@@ -56,6 +56,10 @@ func newMetricSetType(rtype reflect.Type) (mst *metricSetType, err error) {
 			if newMst.metrics[i], err = newCounterMetric(field); err != nil {
 				return
 			}
+		case "latency":
+			if newMst.metrics[i], err = newLatencyMetric(field); err != nil {
+				return
+			}
 		default:
 			err = errors.New("metric " + field.Name + " is of unknown type " + field.Tag.Get("type"))
 			return
