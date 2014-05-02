@@ -30,13 +30,12 @@ func Example() {
 	c := make(chan interface{}, 10)
 	r := &Reporter{C: c}
 	go r.Feed()
-	killer, err := r.Start(exampleValueSet{}, &DstatStyler{Period: time.Second, LinesBetweenHeaders: 0, Logger: log.New(os.Stdout, "example: ", 0)})
-	if err != nil {
+	if err := r.Start(exampleValueSet{}, &DstatStyler{Period: time.Second, LinesBetweenHeaders: 0, Logger: log.New(os.Stdout, "example: ", 0)}); err != nil {
 		return
 	}
+	defer r.Close()
 	gen(c)
 	close(c)
-	killer <- true
 	// Output:
 	// example: ----------- a ------------ ------------------ b ------------------
 	// example:         iter        total |        ewma1          cum        total
@@ -57,13 +56,12 @@ func ExampleCsv() {
 	c := make(chan interface{}, 10)
 	r := &Reporter{C: c}
 	go r.Feed()
-	csvKiller, err := r.Start(exampleValueSet{}, &CsvStyler{Period: time.Duration(10)*time.Millisecond, Writer: bufio.NewWriter(os.Stdout)})
-	if err != nil {
+	if err := r.Start(exampleValueSet{}, &CsvStyler{Period: time.Duration(10)*time.Millisecond, Writer: bufio.NewWriter(os.Stdout)}); err != nil {
 		return
 	}
+	defer r.Close()
 	gen(c)
 	close(c)
-	csvKiller <- true
 }
 
 type latencyValueSet struct {
@@ -92,11 +90,10 @@ func ExampleLatency() {
 	c := make(chan interface{}, 10)
 	r := &Reporter{C: c}
 	go r.Feed()
-	killer, err := r.Start(latencyValueSet{}, &CsvStyler{Period: time.Duration(10)*time.Millisecond, Writer: bufio.NewWriter(os.Stdout)})
-	if err != nil {
+	if err := r.Start(latencyValueSet{}, &CsvStyler{Period: time.Duration(10)*time.Millisecond, Writer: bufio.NewWriter(os.Stdout)}); err != nil {
 		return
 	}
+	defer r.Close()
 	genLats(c)
 	close(c)
-	killer <- true
 }

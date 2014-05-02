@@ -39,19 +39,19 @@ import (
 // 		metricChannel := make(chan interface{}, 100)
 // 		r := olbermann.Reporter{C: metricChannel}
 // 		go r.Feed()
-// 		dstatKiller, err := r.Start(ReportableMetric{}, &olbermann.BasicDstatStyler)
-// 		if err != nil {
+// 		if err := r.Start(ReportableMetric{}, &olbermann.BasicDstatStyler); err != nil {
 // 			return
 // 		}
+//              defer r.Close()
 // 		for i := 0; i < 100; i++ {
 // 			metricChannel <- &ReportableMetric{1000, 20, 0.5}
 // 		}
-// 		dstatKiller <- true
 // 	}
 type Reporter struct {
-	C    <-chan interface{}
-	msts []*metricSetType
-	lock sync.RWMutex
+	C      <-chan interface{}
+	msts   []*metricSetType
+	lock   sync.RWMutex
+	killer chan bool
 }
 
 // Feed is a long-running function that consumes input to the reporter's channel until the channel is closed.
@@ -82,18 +82,18 @@ type Styler interface {
 	printValues(curTime time.Time, mst *metricSetType, msv *metricSetValue)
 }
 
-// Start creates a goroutine printing the Reporter's metrics according to the provided Styler, and returns a channel that can be used to kill the goroutine.
+// Start creates a goroutine printing the Reporter's metrics according to the provided Styler.
+//
+// You must call Close later.
 //
 // Needs a sample object to initialize some state, the zero value for the metric will do.
 //
 // Usage:
-// 	dstatKiller, err := r.Start(ReportableMetric{}, &BasicDstatStyler)
-// 	if err != nil {
+// 	if err := r.Start(ReportableMetric{}, &BasicDstatStyler); err != nil {
 // 		return
 // 	}
-// 	...
-// 	dstatKiller <- true
-func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<- bool, err error) {
+// 	defer r.Close()
+func (r *Reporter) Start(sample interface{}, styler Styler) (err error) {
 	sampleType := reflect.TypeOf(sample)
 	if sampleType.Kind() == reflect.Ptr {
 		sampleType = sampleType.Elem()
@@ -102,7 +102,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<
 	if err != nil {
 		return
 	}
-	killer := make(chan bool)
+	r.killer = make(chan bool)
 	go func() {
 		r.lock.Lock()
 		idx := len(r.msts)
@@ -125,8 +125,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<
 		ticker := time.Tick(time.Second)
 		for {
 			select {
-			case <-killer:
-				close(killer)
+			case <-r.killer:
 				return
 			case curTime := <-ticker:
 				tDiff := curTime.Sub(lastTime)
@@ -141,6 +140,11 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (killerChannel chan<
 			}
 		}
 	}()
-	killerChannel = killer
 	return
+}
+
+// Close stops the reporter's internal goroutine.
+func (r *Reporter) Close() {
+	r.killer <- true
+	close(r.killer)
 }
