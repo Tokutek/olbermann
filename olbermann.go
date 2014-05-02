@@ -130,6 +130,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (err error) {
 			case curTime := <-ticker:
 				tDiff := curTime.Sub(lastTime)
 				tTotal := curTime.Sub(startTime)
+				lastTime = curTime
 				msv := mst.getValues(tDiff, tTotal)
 				if styler.linesBetweenHeaders() > 0 && linesSinceHeader > styler.linesBetweenHeaders() {
 					linesSinceHeader = 0
