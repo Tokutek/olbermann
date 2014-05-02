@@ -8,8 +8,10 @@ import (
 
 func toFloat(fval reflect.Value) float64 {
 	switch fval.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return float64(fval.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return float64(fval.Uint())
 	case reflect.Float32, reflect.Float64:
 		return fval.Float()
 	default:
