@@ -15,9 +15,14 @@
 package olbermann
 
 import (
+	"flag"
 	"reflect"
 	"sync"
 	"time"
+)
+
+var (
+	outputSecondsInterval = flag.Int("outputSecondsInterval", 1, "specify how often, in seconds, to output results")
 )
 
 // A Reporter represents a central point to collect a metric stream.
@@ -122,7 +127,7 @@ func (r *Reporter) Start(sample interface{}, styler Styler) (err error) {
 
 		startTime := time.Now()
 		lastTime := startTime
-		ticker := time.Tick(time.Second)
+		ticker := time.Tick(time.Duration(*outputSecondsInterval) * time.Second)
 		for {
 			select {
 			case <-r.killer:
